@@ -1,7 +1,7 @@
 "use client";
 
 import { divIcon, type Marker as LeafletMarker } from "leaflet";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -14,11 +14,18 @@ import {
 
 import { LocationButton, type Coordinates } from "@/components/map/location-button";
 import { BasemapControl, CoordinatePanel } from "@/components/map/map-controls";
+import { MapResizeHandler, MapZoomGuard } from "@/components/map/map-lifecycle";
 import { BASEMAPS, DEFAULT_BASEMAP, GIS_CONFIG, type BasemapKey } from "@/lib/gis";
 
 function ChangeView({ coordinates }: { coordinates: Coordinates }) {
   const map = useMap();
-  map.setView([coordinates.latitude, coordinates.longitude], map.getZoom());
+
+  useEffect(() => {
+    map.setView([coordinates.latitude, coordinates.longitude], map.getZoom(), {
+      animate: true,
+    });
+  }, [coordinates.latitude, coordinates.longitude, map]);
+
   return null;
 }
 
@@ -75,9 +82,14 @@ export default function LeafletMapPicker({
         center={[value.latitude, value.longitude]}
         zoom={GIS_CONFIG.pickerZoom}
         minZoom={GIS_CONFIG.minZoom}
+        maxZoom={selectedBasemap.maxZoom}
         maxBounds={GIS_CONFIG.maxBounds}
         maxBoundsViscosity={GIS_CONFIG.maxBoundsViscosity}
         zoomControl={false}
+        wheelDebounceTime={80}
+        wheelPxPerZoomLevel={90}
+        zoomAnimation
+        zoomSnap={0.5}
         scrollWheelZoom
         className="h-[460px] w-full"
       >
@@ -85,8 +97,13 @@ export default function LeafletMapPicker({
           key={basemap}
           attribution={selectedBasemap.attribution}
           maxZoom={selectedBasemap.maxZoom}
+          maxNativeZoom={selectedBasemap.maxZoom}
+          keepBuffer={4}
+          updateWhenIdle={false}
           url={selectedBasemap.url}
         />
+        <MapResizeHandler />
+        <MapZoomGuard maxZoom={selectedBasemap.maxZoom} />
         <ZoomControl position="bottomright" />
         <ScaleControl imperial={false} position="bottomleft" />
         <ClickHandler onChange={onChange} />

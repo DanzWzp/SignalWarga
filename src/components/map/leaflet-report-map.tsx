@@ -12,6 +12,7 @@ import {
 } from "react-leaflet";
 
 import { BasemapControl, CoordinatePanel, StatusLegend } from "@/components/map/map-controls";
+import { MapResizeHandler, MapZoomGuard } from "@/components/map/map-lifecycle";
 import { ReportMarker } from "@/components/map/report-marker";
 import { BASEMAPS, DEFAULT_BASEMAP, GIS_CONFIG, type BasemapKey } from "@/lib/gis";
 import { cn } from "@/lib/utils";
@@ -73,9 +74,14 @@ export default function LeafletReportMap({
         center={center as [number, number]}
         zoom={GIS_CONFIG.defaultZoom}
         minZoom={GIS_CONFIG.minZoom}
+        maxZoom={selectedBasemap.maxZoom}
         maxBounds={GIS_CONFIG.maxBounds}
         maxBoundsViscosity={GIS_CONFIG.maxBoundsViscosity}
         zoomControl={false}
+        wheelDebounceTime={80}
+        wheelPxPerZoomLevel={90}
+        zoomAnimation
+        zoomSnap={0.5}
         scrollWheelZoom
         className={cn("h-[560px] w-full", heightClassName)}
       >
@@ -83,8 +89,13 @@ export default function LeafletReportMap({
           key={basemap}
           attribution={selectedBasemap.attribution}
           maxZoom={selectedBasemap.maxZoom}
+          maxNativeZoom={selectedBasemap.maxZoom}
+          keepBuffer={4}
+          updateWhenIdle={false}
           url={selectedBasemap.url}
         />
+        <MapResizeHandler />
+        <MapZoomGuard maxZoom={selectedBasemap.maxZoom} />
         <ZoomControl position="bottomright" />
         <ScaleControl imperial={false} position="bottomleft" />
         <FitReportBounds reports={reports} />
