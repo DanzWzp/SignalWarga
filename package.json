@@ -9,6 +9,7 @@
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:preview": "opennextjs-cloudflare build && wrangler dev",
     "cf:whoami": "wrangler whoami",
+    "seed:staff": "node scripts/seed-staff.mjs",
     "start": "next start",
     "lint": "eslint"
   },
