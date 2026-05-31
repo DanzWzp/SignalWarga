@@ -10,7 +10,7 @@ import {
 const protectedPrefixes = ["/dashboard", "/admin", "/profile"];
 const authPages = ["/login", "/login/admin", "/login/officer", "/register"];
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   if (!isSupabaseConfigured) {
     return NextResponse.next();
   }
