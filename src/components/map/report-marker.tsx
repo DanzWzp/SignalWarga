@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { divIcon } from "leaflet";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Marker, Popup } from "react-leaflet";
 
 import {
@@ -13,13 +13,17 @@ import { statusMarkerColors } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import type { MappableReport } from "@/types/database";
 
-export function ReportMarker({
+function ReportMarkerComponent({
   report,
   detailBasePath,
 }: {
   report: MappableReport;
   detailBasePath?: string;
 }) {
+  const position = useMemo(
+    () => [report.latitude, report.longitude] as [number, number],
+    [report.latitude, report.longitude],
+  );
   const markerIcon = useMemo(
     () =>
       divIcon({
@@ -34,7 +38,7 @@ export function ReportMarker({
   return (
     <Marker
       icon={markerIcon}
-      position={[report.latitude, report.longitude]}
+      position={position}
     >
       <Popup>
         <div className="w-64">
@@ -60,3 +64,16 @@ export function ReportMarker({
     </Marker>
   );
 }
+
+export const ReportMarker = memo(
+  ReportMarkerComponent,
+  (previous, next) =>
+    previous.detailBasePath === next.detailBasePath &&
+    previous.report.id === next.report.id &&
+    previous.report.status === next.report.status &&
+    previous.report.category === next.report.category &&
+    previous.report.priority === next.report.priority &&
+    previous.report.latitude === next.report.latitude &&
+    previous.report.longitude === next.report.longitude &&
+    previous.report.updated_at === next.report.updated_at,
+);

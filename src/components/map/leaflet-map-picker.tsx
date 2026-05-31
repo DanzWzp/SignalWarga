@@ -85,11 +85,13 @@ export default function LeafletMapPicker({
         maxZoom={selectedBasemap.maxZoom}
         maxBounds={GIS_CONFIG.maxBounds}
         maxBoundsViscosity={GIS_CONFIG.maxBoundsViscosity}
+        preferCanvas
         zoomControl={false}
         wheelDebounceTime={80}
         wheelPxPerZoomLevel={90}
         zoomAnimation
         zoomSnap={0.5}
+        markerZoomAnimation={false}
         scrollWheelZoom
         className="h-[460px] w-full"
       >
@@ -98,8 +100,10 @@ export default function LeafletMapPicker({
           attribution={selectedBasemap.attribution}
           maxZoom={selectedBasemap.maxZoom}
           maxNativeZoom={selectedBasemap.maxZoom}
-          keepBuffer={4}
-          updateWhenIdle={false}
+          keepBuffer={3}
+          updateInterval={180}
+          updateWhenIdle
+          updateWhenZooming={false}
           url={selectedBasemap.url}
         />
         <MapResizeHandler />

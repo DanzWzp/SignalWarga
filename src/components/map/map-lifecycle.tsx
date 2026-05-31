@@ -1,25 +1,35 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 
 export function MapResizeHandler() {
   const map = useMap();
+  const frameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const refreshSize = () => {
       map.invalidateSize({ pan: false });
     };
 
+    const scheduleRefreshSize = () => {
+      if (frameRef.current) return;
+
+      frameRef.current = window.requestAnimationFrame(() => {
+        refreshSize();
+        frameRef.current = null;
+      });
+    };
+
     const timeouts = [80, 250, 700].map((delay) =>
-      window.setTimeout(refreshSize, delay),
+      window.setTimeout(scheduleRefreshSize, delay),
     );
 
     const container = map.getContainer();
     const observer =
       typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(() => {
-            window.requestAnimationFrame(refreshSize);
+            scheduleRefreshSize();
           })
         : null;
 
@@ -27,17 +37,20 @@ export function MapResizeHandler() {
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
-        window.setTimeout(refreshSize, 80);
+        window.setTimeout(scheduleRefreshSize, 80);
       }
     };
 
-    window.addEventListener("resize", refreshSize);
+    window.addEventListener("resize", scheduleRefreshSize);
     document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       timeouts.forEach((timeout) => window.clearTimeout(timeout));
+      if (frameRef.current) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
       observer?.disconnect();
-      window.removeEventListener("resize", refreshSize);
+      window.removeEventListener("resize", scheduleRefreshSize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [map]);

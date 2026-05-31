@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { AppProviders } from "@/components/providers/app-providers";
 import { APP_NAME } from "@/lib/constants";
 import { absoluteUrl, defaultSeo } from "@/lib/seo";
@@ -19,6 +20,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl("/")),
   applicationName: APP_NAME,
+  manifest: "/manifest.webmanifest",
   title: {
     default: defaultSeo.title,
     template: `%s | ${APP_NAME}`,
@@ -54,6 +56,21 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      }
+    : undefined,
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": APP_NAME,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#10b981",
+  colorScheme: "light",
 };
 
 const websiteJsonLd = {
@@ -80,6 +97,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
+        <GoogleAnalytics />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { CalendarClock, Filter, MapPin, Search } from "lucide-react";
 
 import { ReportMap } from "@/components/map/report-map";
@@ -79,9 +79,10 @@ export function PublicMapExplorer({
     useState<ReportCategory | "all">(initialCategory);
   const [status, setStatus] = useState<ReportStatus | "all">(initialStatus);
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
 
   const filteredReports = useMemo(() => {
-    const needle = search.trim().toLowerCase();
+    const needle = deferredSearch.trim().toLowerCase();
 
     return initialReports.filter((report) => {
       const categoryMatch = category === "all" || report.category === category;
@@ -97,7 +98,7 @@ export function PublicMapExplorer({
 
       return categoryMatch && statusMatch && searchMatch;
     });
-  }, [category, initialReports, search, status]);
+  }, [category, deferredSearch, initialReports, status]);
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">

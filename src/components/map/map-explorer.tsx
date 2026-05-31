@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Filter, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +28,7 @@ export function MapExplorer({
   const [category, setCategory] = useState<ReportCategory | "all">("all");
   const [status, setStatus] = useState<ReportStatus | "all">("all");
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
 
   useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -65,7 +66,7 @@ export function MapExplorer({
   }, []);
 
   const filteredReports = useMemo(() => {
-    const needle = search.trim().toLowerCase();
+    const needle = deferredSearch.trim().toLowerCase();
 
     return reports.filter((report) => {
       const categoryMatch = category === "all" || report.category === category;
@@ -81,7 +82,7 @@ export function MapExplorer({
 
       return categoryMatch && statusMatch && searchMatch;
     });
-  }, [category, reports, search, status]);
+  }, [category, deferredSearch, reports, status]);
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
