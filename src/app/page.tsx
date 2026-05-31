@@ -7,10 +7,12 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Navbar } from "@/components/layout/navbar";
 import { ButtonLink } from "@/components/ui/button";
 import { categories, categoryLabels } from "@/lib/constants";
+import { publicCategoryPages } from "@/lib/seo";
 
 const steps = [
   {
@@ -55,7 +57,7 @@ export default function Home() {
                 <ButtonLink href="/dashboard/reports/new" size="lg">
                   Laporkan Sekarang
                 </ButtonLink>
-                <ButtonLink href="/dashboard/map" variant="outline" size="lg">
+                <ButtonLink href="/peta-laporan" variant="outline" size="lg">
                   Lihat Peta Laporan
                 </ButtonLink>
               </div>
@@ -132,14 +134,24 @@ export default function Home() {
               </ButtonLink>
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map((category) => (
-                <div key={category} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <Sparkles className="size-5 text-amber-500" />
-                  <p className="mt-3 font-semibold text-slate-900">
-                    {categoryLabels[category]}
-                  </p>
-                </div>
-              ))}
+              {categories.map((category) => {
+                const page = publicCategoryPages.find(
+                  (item) => item.category === category,
+                );
+
+                return (
+                  <Link
+                    key={category}
+                    href={page?.path || "/peta-laporan"}
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-4 transition hover:border-emerald-300 hover:bg-emerald-50"
+                  >
+                    <Sparkles className="size-5 text-amber-500" />
+                    <p className="mt-3 font-semibold text-slate-900">
+                      {categoryLabels[category]}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

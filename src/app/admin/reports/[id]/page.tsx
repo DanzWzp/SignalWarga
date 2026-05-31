@@ -3,6 +3,7 @@ import { CalendarClock, MapPin, UserRound } from "lucide-react";
 
 import { ReportMap } from "@/components/map/report-map";
 import { AssignOfficerForm } from "@/components/reports/assign-officer-form";
+import { DeleteReportButton } from "@/components/reports/delete-report-button";
 import {
   CategoryBadge,
   PriorityBadge,
@@ -93,6 +94,20 @@ export default async function AdminReportDetailPage({
       </article>
 
       <aside className="grid gap-5 self-start">
+        <div className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-950">Aksi Admin</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Hapus laporan jika duplikat, salah kirim, atau tidak relevan.
+          </p>
+          <div className="mt-4">
+            <DeleteReportButton
+              reportId={report.id}
+              reportTitle={report.title}
+              redirectTo="/admin/reports"
+              size="md"
+            />
+          </div>
+        </div>
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-bold text-slate-950">Alamat Administratif</h2>
           <div className="mt-4 grid gap-3 text-sm">

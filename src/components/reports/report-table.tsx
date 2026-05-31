@@ -5,15 +5,18 @@ import {
   PriorityBadge,
   StatusBadge,
 } from "@/components/reports/report-badges";
+import { DeleteReportButton } from "@/components/reports/delete-report-button";
 import { formatDate } from "@/lib/utils";
 import type { ReportWithProfile } from "@/types/database";
 
 export function ReportTable({
   reports,
   detailBasePath,
+  canDelete = false,
 }: {
   reports: ReportWithProfile[];
   detailBasePath: "/dashboard/reports" | "/admin/reports";
+  canDelete?: boolean;
 }) {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -27,6 +30,7 @@ export function ReportTable({
               <th className="px-4 py-3">Prioritas</th>
               <th className="px-4 py-3">Pelapor</th>
               <th className="px-4 py-3">Tanggal</th>
+              {canDelete ? <th className="px-4 py-3">Aksi</th> : null}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -64,6 +68,14 @@ export function ReportTable({
                 <td className="px-4 py-4 text-slate-500">
                   {formatDate(report.created_at)}
                 </td>
+                {canDelete ? (
+                  <td className="px-4 py-4">
+                    <DeleteReportButton
+                      reportId={report.id}
+                      reportTitle={report.title}
+                    />
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>

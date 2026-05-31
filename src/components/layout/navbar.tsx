@@ -20,6 +20,9 @@ export async function Navbar() {
           <Link href="/#kategori" className="hover:text-emerald-700">
             Kategori
           </Link>
+          <Link href="/peta-laporan" className="hover:text-emerald-700">
+            Peta Publik
+          </Link>
           <Link href="/privacy" className="hover:text-emerald-700">
             Privasi
           </Link>

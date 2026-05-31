@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import type { ReportWithProfile } from "@/types/database";
+import type { MappableReport } from "@/types/database";
 
 const LeafletReportMap = dynamic(
   () => import("@/components/map/leaflet-report-map"),
@@ -21,8 +21,8 @@ export function ReportMap({
   detailBasePath,
   heightClassName,
 }: {
-  reports: ReportWithProfile[];
-  detailBasePath: "/dashboard/reports" | "/admin/reports";
+  reports: MappableReport[];
+  detailBasePath?: string;
   heightClassName?: string;
 }) {
   return (

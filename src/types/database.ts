@@ -182,7 +182,34 @@ export type Database = {
         ];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      public_reports: {
+        Row: {
+          id: string;
+          title: string;
+          description: string;
+          category: ReportCategory;
+          status: ReportStatus;
+          priority: ReportPriority;
+          latitude: number;
+          longitude: number;
+          address: string | null;
+          rt: string | null;
+          rw: string | null;
+          kelurahan: string | null;
+          kecamatan: string | null;
+          city: string | null;
+          province: string | null;
+          postal_code: string | null;
+          photo_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -194,6 +221,30 @@ export type Report = Database["public"]["Tables"]["reports"]["Row"];
 export type ReportInsert = Database["public"]["Tables"]["reports"]["Insert"];
 export type ReportUpdate = Database["public"]["Tables"]["reports"]["Update"];
 export type ReportTimeline = Database["public"]["Tables"]["report_updates"]["Row"];
+export type PublicReport = Database["public"]["Views"]["public_reports"]["Row"];
+
+export type MappableReport = Pick<
+  Report,
+  | "id"
+  | "title"
+  | "description"
+  | "category"
+  | "status"
+  | "priority"
+  | "latitude"
+  | "longitude"
+  | "address"
+  | "rt"
+  | "rw"
+  | "kelurahan"
+  | "kecamatan"
+  | "city"
+  | "province"
+  | "postal_code"
+  | "photo_url"
+  | "created_at"
+  | "updated_at"
+>;
 
 export type ReportWithProfile = Report & {
   profiles?: Pick<Profile, "id" | "full_name" | "avatar_url" | "role"> | null;

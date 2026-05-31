@@ -67,7 +67,11 @@ export default async function AdminPage() {
               Lihat Semua
             </ButtonLink>
           </div>
-          <ReportTable reports={stats.latest} detailBasePath="/admin/reports" />
+          <ReportTable
+            reports={stats.latest}
+            detailBasePath="/admin/reports"
+            canDelete
+          />
         </div>
       </section>
     </div>

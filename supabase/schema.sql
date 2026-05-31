@@ -90,6 +90,36 @@ create index if not exists reports_status_idx on public.reports(status);
 create index if not exists reports_category_idx on public.reports(category);
 create index if not exists report_updates_report_id_idx on public.report_updates(report_id);
 
+create or replace view public.public_reports
+with (security_barrier = true)
+as
+select
+  id,
+  title,
+  description,
+  category,
+  status,
+  priority,
+  latitude,
+  longitude,
+  address,
+  rt,
+  rw,
+  kelurahan,
+  kecamatan,
+  city,
+  province,
+  postal_code,
+  photo_url,
+  created_at,
+  updated_at
+from public.reports
+where latitude is not null
+  and longitude is not null;
+
+revoke all on public.public_reports from public, anon, authenticated;
+grant select on public.public_reports to anon, authenticated;
+
 create or replace function public.handle_updated_at()
 returns trigger
 language plpgsql
@@ -240,6 +270,12 @@ to authenticated
 using (public.current_user_role() = 'officer' and assigned_to = auth.uid())
 with check (public.current_user_role() = 'officer' and assigned_to = auth.uid());
 
+drop policy if exists "reports_delete_admin_all" on public.reports;
+create policy "reports_delete_admin_all"
+on public.reports for delete
+to authenticated
+using (public.is_admin());
+
 drop policy if exists "report_updates_select_accessible" on public.report_updates;
 create policy "report_updates_select_accessible"
 on public.report_updates for select
@@ -334,6 +370,18 @@ using (
 with check (
   bucket_id = 'report-photos'
   and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+drop policy if exists "report_photos_delete_admin_or_own_folder" on storage.objects;
+create policy "report_photos_delete_admin_or_own_folder"
+on storage.objects for delete
+to authenticated
+using (
+  bucket_id = 'report-photos'
+  and (
+    public.is_admin()
+    or (storage.foldername(name))[1] = auth.uid()::text
+  )
 );
 
 do $$

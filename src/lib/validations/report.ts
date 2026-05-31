@@ -52,3 +52,7 @@ export const assignReportSchema = z.object({
   report_id: z.string().uuid(),
   officer_id: z.string().uuid(),
 });
+
+export const deleteReportSchema = z.object({
+  report_id: z.string().uuid(),
+});

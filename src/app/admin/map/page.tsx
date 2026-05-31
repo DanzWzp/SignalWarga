@@ -1,10 +1,10 @@
 import { MapExplorer } from "@/components/map/map-explorer";
 import { requireUserProfile } from "@/lib/auth";
-import { getReports } from "@/lib/data/reports";
+import { getCachedAdminReports } from "@/lib/data/reports";
 
 export default async function AdminMapPage() {
   await requireUserProfile(["admin"]);
-  const reports = await getReports();
+  const reports = await getCachedAdminReports();
 
   return (
     <div className="grid gap-6">

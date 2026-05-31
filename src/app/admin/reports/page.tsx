@@ -3,7 +3,7 @@ import { ReportTable } from "@/components/reports/report-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { requireUserProfile } from "@/lib/auth";
 import { categories, statuses } from "@/lib/constants";
-import { getReports } from "@/lib/data/reports";
+import { getCachedAdminReports } from "@/lib/data/reports";
 import type { ReportCategory, ReportStatus } from "@/types/database";
 
 type AdminReportsPageProps = {
@@ -25,7 +25,7 @@ export default async function AdminReportsPage({
   const status = statuses.includes(params.status as ReportStatus)
     ? (params.status as ReportStatus)
     : "all";
-  const reports = await getReports({
+  const reports = await getCachedAdminReports({
     category,
     status,
     search: params.search,
@@ -41,7 +41,11 @@ export default async function AdminReportsPage({
       </div>
       <ReportFilters />
       {reports.length > 0 ? (
-        <ReportTable reports={reports} detailBasePath="/admin/reports" />
+        <ReportTable
+          reports={reports}
+          detailBasePath="/admin/reports"
+          canDelete
+        />
       ) : (
         <EmptyState
           title="Tidak ada laporan"

@@ -11,14 +11,14 @@ import {
 } from "@/components/reports/report-badges";
 import { statusMarkerColors } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
-import type { ReportWithProfile } from "@/types/database";
+import type { MappableReport } from "@/types/database";
 
 export function ReportMarker({
   report,
   detailBasePath,
 }: {
-  report: ReportWithProfile;
-  detailBasePath: "/dashboard/reports" | "/admin/reports";
+  report: MappableReport;
+  detailBasePath?: string;
 }) {
   const markerIcon = useMemo(
     () =>
@@ -47,12 +47,14 @@ export function ReportMarker({
             {report.description}
           </p>
           <p className="mt-2 text-xs text-slate-400">{formatDate(report.created_at)}</p>
-          <Link
-            href={`${detailBasePath}/${report.id}`}
-            className="mt-3 inline-flex text-xs font-bold text-emerald-700 hover:text-emerald-800"
-          >
-            Detail Laporan
-          </Link>
+          {detailBasePath ? (
+            <Link
+              href={`${detailBasePath}/${report.id}`}
+              className="mt-3 inline-flex text-xs font-bold text-emerald-700 hover:text-emerald-800"
+            >
+              Detail Laporan
+            </Link>
+          ) : null}
         </div>
       </Popup>
     </Marker>

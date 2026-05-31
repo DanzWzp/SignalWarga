@@ -16,9 +16,9 @@ import { MapResizeHandler, MapZoomGuard } from "@/components/map/map-lifecycle";
 import { ReportMarker } from "@/components/map/report-marker";
 import { BASEMAPS, DEFAULT_BASEMAP, GIS_CONFIG, type BasemapKey } from "@/lib/gis";
 import { cn } from "@/lib/utils";
-import type { ReportWithProfile } from "@/types/database";
+import type { MappableReport } from "@/types/database";
 
-function FitReportBounds({ reports }: { reports: ReportWithProfile[] }) {
+function FitReportBounds({ reports }: { reports: MappableReport[] }) {
   const map = useMap();
 
   useEffect(() => {
@@ -57,8 +57,8 @@ export default function LeafletReportMap({
   detailBasePath,
   heightClassName,
 }: {
-  reports: ReportWithProfile[];
-  detailBasePath: "/dashboard/reports" | "/admin/reports";
+  reports: MappableReport[];
+  detailBasePath?: string;
   heightClassName?: string;
 }) {
   const [basemap, setBasemap] = useState<BasemapKey>(DEFAULT_BASEMAP);

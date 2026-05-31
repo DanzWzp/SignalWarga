@@ -1,3 +1,10 @@
+import { unstable_cache } from "next/cache";
+
+import {
+  ADMIN_REPORTS_CACHE_TAG,
+  REPORTS_CACHE_TAG,
+} from "@/lib/cache-tags";
+import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type {
@@ -57,6 +64,47 @@ export async function getReports(filters: ReportQuery = {}) {
   return (data || []) as ReportWithProfile[];
 }
 
+export const getCachedAdminReports = unstable_cache(
+  async (filters: ReportQuery = {}) => {
+    if (!isSupabaseConfigured) return [];
+
+    const supabase = createAdminSupabaseClient();
+
+    let query = supabase
+      .from("reports")
+      .select(reportListSelect)
+      .order("created_at", { ascending: false });
+
+    if (filters.limit) query = query.limit(filters.limit);
+    if (filters.category && filters.category !== "all") {
+      query = query.eq("category", filters.category);
+    }
+    if (filters.status && filters.status !== "all") {
+      query = query.eq("status", filters.status);
+    }
+    if (filters.search) {
+      const term = filters.search.replaceAll("%", "").replaceAll(",", " ");
+      query = query.or(
+        `title.ilike.%${term}%,description.ilike.%${term}%,address.ilike.%${term}%,kelurahan.ilike.%${term}%,kecamatan.ilike.%${term}%,city.ilike.%${term}%`,
+      );
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Failed to fetch cached admin reports", error);
+      return [];
+    }
+
+    return (data || []) as ReportWithProfile[];
+  },
+  ["admin-reports"],
+  {
+    tags: [REPORTS_CACHE_TAG, ADMIN_REPORTS_CACHE_TAG],
+    revalidate: 60,
+  },
+);
+
 export async function getReportById(id: string) {
   if (!isSupabaseConfigured) return null;
 
@@ -89,7 +137,7 @@ export async function getReportById(id: string) {
 export async function getDashboardStats(profile: Profile) {
   const reports =
     profile.role === "admin"
-      ? await getReports()
+      ? await getCachedAdminReports()
       : profile.role === "officer"
         ? await getReports({ assignedTo: profile.id })
         : await getReports({ createdBy: profile.id });
