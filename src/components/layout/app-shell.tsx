@@ -3,6 +3,7 @@ import {
   ClipboardList,
   Home,
   MapPinned,
+  Navigation,
   PlusCircle,
   Settings,
   ShieldCheck,
@@ -27,6 +28,7 @@ const adminLinks = [
   { href: "/admin", label: "Dashboard Admin", icon: ShieldCheck },
   { href: "/admin/reports", label: "Kelola Laporan", icon: ClipboardList },
   { href: "/admin/map", label: "Peta Admin", icon: MapPinned },
+  { href: "/admin/locations", label: "Lokasi Warga", icon: Navigation },
   { href: "/profile", label: "Profil", icon: UserRound },
 ];
 

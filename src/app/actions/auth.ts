@@ -1,17 +1,42 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 import {
   formDataToObject,
   type ActionState,
 } from "@/lib/action-state";
 import { getRoleHome } from "@/lib/auth";
+import { USER_LOCATIONS_CACHE_TAG } from "@/lib/cache-tags";
+import { saveWargaLocation } from "@/lib/data/locations";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured, SITE_URL } from "@/lib/supabase/env";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
 import type { UserRole } from "@/types/database";
+
+function parseLocationFromForm(formData: FormData) {
+  const latRaw = formData.get("latitude");
+  const lngRaw = formData.get("longitude");
+
+  if (typeof latRaw !== "string" || typeof lngRaw !== "string") return null;
+  if (!latRaw.trim() || !lngRaw.trim()) return null;
+
+  const latitude = Number(latRaw);
+  const longitude = Number(lngRaw);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90) return null;
+  if (longitude < -180 || longitude > 180) return null;
+
+  const accuracyRaw = Number(formData.get("accuracy"));
+
+  return {
+    latitude,
+    longitude,
+    accuracy: Number.isFinite(accuracyRaw) ? accuracyRaw : null,
+  };
+}
 
 async function ensureProfile(userId: string, fullName?: string | null) {
   const supabase = await createServerSupabaseClient();
@@ -80,6 +105,18 @@ export async function loginAction(
           : user.email?.split("@")[0],
       )
     : null;
+
+  if (user && profile?.role === "citizen") {
+    const fix = parseLocationFromForm(formData);
+    if (fix) {
+      const saved = await saveWargaLocation(
+        user.id,
+        { ...fix, source: "login" },
+        supabase,
+      );
+      if (saved) updateTag(USER_LOCATIONS_CACHE_TAG);
+    }
+  }
 
   revalidatePath("/", "layout");
   redirect(getRoleHome(profile?.role));

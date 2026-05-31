@@ -141,6 +141,55 @@ export type Database = {
           },
         ];
       };
+      user_locations: {
+        Row: {
+          user_id: string;
+          latitude: number;
+          longitude: number;
+          accuracy: number | null;
+          address: string | null;
+          kelurahan: string | null;
+          kecamatan: string | null;
+          city: string | null;
+          province: string | null;
+          source: string;
+          recorded_at: string;
+        };
+        Insert: {
+          user_id: string;
+          latitude: number;
+          longitude: number;
+          accuracy?: number | null;
+          address?: string | null;
+          kelurahan?: string | null;
+          kecamatan?: string | null;
+          city?: string | null;
+          province?: string | null;
+          source?: string;
+          recorded_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          latitude?: number;
+          longitude?: number;
+          accuracy?: number | null;
+          address?: string | null;
+          kelurahan?: string | null;
+          kecamatan?: string | null;
+          city?: string | null;
+          province?: string | null;
+          source?: string;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_locations_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       report_updates: {
         Row: {
           id: string;
@@ -222,6 +271,14 @@ export type ReportInsert = Database["public"]["Tables"]["reports"]["Insert"];
 export type ReportUpdate = Database["public"]["Tables"]["reports"]["Update"];
 export type ReportTimeline = Database["public"]["Tables"]["report_updates"]["Row"];
 export type PublicReport = Database["public"]["Views"]["public_reports"]["Row"];
+export type UserLocation = Database["public"]["Tables"]["user_locations"]["Row"];
+
+export type WargaLocation = UserLocation & {
+  profile?: Pick<
+    Profile,
+    "id" | "full_name" | "avatar_url" | "phone" | "role"
+  > | null;
+};
 
 export type MappableReport = Pick<
   Report,
