@@ -108,6 +108,32 @@ export default async function ReportDetailPage({ params }: ReportDetailPageProps
               </p>
             </div>
           </div>
+          <div className="mt-4 grid gap-3 text-sm">
+            <div className="rounded-lg bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">RT/RW</p>
+              <p className="mt-1 font-semibold text-slate-900">
+                {report.rt || "-"} / {report.rw || "-"}
+              </p>
+            </div>
+            <div className="rounded-lg bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">Kelurahan / Desa</p>
+              <p className="mt-1 font-semibold text-slate-900">
+                {report.kelurahan || "-"}
+              </p>
+            </div>
+            <div className="rounded-lg bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">Kecamatan</p>
+              <p className="mt-1 font-semibold text-slate-900">
+                {report.kecamatan || "-"}
+              </p>
+            </div>
+            <div className="rounded-lg bg-slate-50 p-3">
+              <p className="text-xs text-slate-500">Kota / Provinsi</p>
+              <p className="mt-1 font-semibold text-slate-900">
+                {[report.city, report.province].filter(Boolean).join(", ") || "-"}
+              </p>
+            </div>
+          </div>
         </div>
         {canUpdate ? (
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

@@ -74,7 +74,10 @@ export function MapExplorer({
         !needle ||
         report.title.toLowerCase().includes(needle) ||
         report.description.toLowerCase().includes(needle) ||
-        (report.address || "").toLowerCase().includes(needle);
+        (report.address || "").toLowerCase().includes(needle) ||
+        (report.kelurahan || "").toLowerCase().includes(needle) ||
+        (report.kecamatan || "").toLowerCase().includes(needle) ||
+        (report.city || "").toLowerCase().includes(needle);
 
       return categoryMatch && statusMatch && searchMatch;
     });

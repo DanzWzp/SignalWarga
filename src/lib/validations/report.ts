@@ -26,7 +26,14 @@ export const createReportSchema = z.object({
     .number({ error: "Longitude wajib diisi" })
     .min(-180)
     .max(180),
-  address: z.string().max(180).optional().or(z.literal("")),
+  address: z.string().max(240).optional().or(z.literal("")),
+  rt: z.string().max(12).optional().or(z.literal("")),
+  rw: z.string().max(12).optional().or(z.literal("")),
+  kelurahan: z.string().max(120).optional().or(z.literal("")),
+  kecamatan: z.string().max(120).optional().or(z.literal("")),
+  city: z.string().max(120).optional().or(z.literal("")),
+  province: z.string().max(120).optional().or(z.literal("")),
+  postal_code: z.string().max(24).optional().or(z.literal("")),
 });
 
 export const reportFilterSchema = z.object({

@@ -40,7 +40,13 @@ export function ReportTable({
                     {report.title}
                   </Link>
                   <p className="mt-1 line-clamp-1 text-xs text-slate-500">
-                    {report.address || report.description}
+                    {[
+                      report.address,
+                      report.kelurahan,
+                      report.kecamatan,
+                    ]
+                      .filter(Boolean)
+                      .join(", ") || report.description}
                   </p>
                 </td>
                 <td className="px-4 py-4">

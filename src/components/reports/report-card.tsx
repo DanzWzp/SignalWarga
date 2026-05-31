@@ -16,6 +16,18 @@ export function ReportCard({
   report: ReportWithProfile;
   href: string;
 }) {
+  const locationText =
+    [
+      report.address,
+      report.rt ? `RT ${report.rt}` : null,
+      report.rw ? `RW ${report.rw}` : null,
+      report.kelurahan,
+      report.kecamatan,
+    ]
+      .filter(Boolean)
+      .join(", ") ||
+    `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`;
+
   return (
     <Link
       href={href}
@@ -37,7 +49,7 @@ export function ReportCard({
       <div className="grid gap-2 text-sm text-slate-500">
         <span className="flex items-center gap-2">
           <MapPin className="size-4 text-emerald-600" />
-          {report.address || `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`}
+          {locationText}
         </span>
         <span className="flex items-center gap-2">
           <CalendarClock className="size-4 text-blue-600" />

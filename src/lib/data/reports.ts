@@ -43,7 +43,7 @@ export async function getReports(filters: ReportQuery = {}) {
   if (filters.search) {
     const term = filters.search.replaceAll("%", "").replaceAll(",", " ");
     query = query.or(
-      `title.ilike.%${term}%,description.ilike.%${term}%,address.ilike.%${term}%`,
+      `title.ilike.%${term}%,description.ilike.%${term}%,address.ilike.%${term}%,kelurahan.ilike.%${term}%,kecamatan.ilike.%${term}%,city.ilike.%${term}%`,
     );
   }
 

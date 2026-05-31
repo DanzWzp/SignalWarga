@@ -44,12 +44,28 @@ create table if not exists public.reports (
   latitude double precision not null,
   longitude double precision not null,
   address text,
+  rt text,
+  rw text,
+  kelurahan text,
+  kecamatan text,
+  city text,
+  province text,
+  postal_code text,
   photo_url text,
   created_by uuid references public.profiles(id) on delete cascade,
   assigned_to uuid references public.profiles(id) on delete set null,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
+
+alter table if exists public.reports
+  add column if not exists rt text,
+  add column if not exists rw text,
+  add column if not exists kelurahan text,
+  add column if not exists kecamatan text,
+  add column if not exists city text,
+  add column if not exists province text,
+  add column if not exists postal_code text;
 
 create table if not exists public.report_updates (
   id uuid default gen_random_uuid() primary key,
