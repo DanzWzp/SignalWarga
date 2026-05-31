@@ -40,23 +40,81 @@ textarea {
   margin: 12px 14px;
 }
 
+.leaflet-control-zoom {
+  border: 0 !important;
+  box-shadow: 0 14px 34px rgb(15 23 42 / 0.18);
+}
+
+.leaflet-control-zoom a {
+  border: 0 !important;
+  color: #0f172a !important;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-weight: 800;
+}
+
+.leaflet-control-scale-line {
+  background: rgb(255 255 255 / 0.92);
+  border-color: rgb(148 163 184 / 0.7);
+  border-radius: 6px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.leaflet-glass-panel {
+  background: rgb(255 255 255 / 0.92);
+  border: 1px solid rgb(226 232 240 / 0.9);
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 0.16);
+  padding: 10px;
+  backdrop-filter: blur(12px);
+}
+
 .signal-marker {
   align-items: center;
   border: 3px solid #ffffff;
   border-radius: 999px;
-  box-shadow: 0 10px 24px rgb(15 23 42 / 0.24);
+  box-shadow: 0 12px 26px rgb(15 23 42 / 0.28);
+  background: var(--marker-color, #10b981);
   display: flex;
-  height: 24px;
+  height: 30px;
   justify-content: center;
   position: relative;
-  width: 24px;
+  width: 30px;
 }
 
-.signal-marker::after {
-  background: #ffffff;
+.signal-marker::before {
+  animation: signal-pulse 1.8s ease-out infinite;
+  background: var(--marker-color, #10b981);
   border-radius: 999px;
   content: "";
+  inset: -8px;
+  opacity: 0.18;
+  position: absolute;
+}
+
+.signal-marker-dot {
+  background: #ffffff;
+  border-radius: 999px;
   display: block;
-  height: 6px;
+  height: 7px;
+  position: relative;
   width: 6px;
+  z-index: 1;
+}
+
+.signal-marker--picker {
+  height: 34px;
+  width: 34px;
+}
+
+@keyframes signal-pulse {
+  0% {
+    opacity: 0.28;
+    transform: scale(0.7);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
 }

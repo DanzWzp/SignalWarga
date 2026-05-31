@@ -24,9 +24,9 @@ export function ReportMarker({
     () =>
       divIcon({
         className: "",
-        html: `<span class="signal-marker" style="background:${statusMarkerColors[report.status]}"></span>`,
-        iconAnchor: [12, 12],
-        iconSize: [24, 24],
+        html: `<span class="signal-marker signal-marker--report" style="--marker-color:${statusMarkerColors[report.status]}"><span class="signal-marker-dot"></span></span>`,
+        iconAnchor: [15, 15],
+        iconSize: [30, 30],
       }),
     [report.status],
   );

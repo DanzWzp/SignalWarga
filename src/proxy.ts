@@ -8,7 +8,7 @@ import {
 } from "@/lib/supabase/env";
 
 const protectedPrefixes = ["/dashboard", "/admin", "/profile"];
-const authPages = ["/login", "/register"];
+const authPages = ["/login", "/login/admin", "/login/officer", "/register"];
 
 export async function proxy(request: NextRequest) {
   if (!isSupabaseConfigured) {

@@ -1,10 +1,20 @@
 "use client";
 
 import { divIcon, type Marker as LeafletMarker } from "leaflet";
-import { useMemo, useRef } from "react";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { useMemo, useRef, useState } from "react";
+import {
+  MapContainer,
+  Marker,
+  ScaleControl,
+  TileLayer,
+  useMap,
+  useMapEvents,
+  ZoomControl,
+} from "react-leaflet";
 
 import { LocationButton, type Coordinates } from "@/components/map/location-button";
+import { BasemapControl, CoordinatePanel } from "@/components/map/map-controls";
+import { BASEMAPS, DEFAULT_BASEMAP, GIS_CONFIG, type BasemapKey } from "@/lib/gis";
 
 function ChangeView({ coordinates }: { coordinates: Coordinates }) {
   const map = useMap();
@@ -37,13 +47,15 @@ export default function LeafletMapPicker({
   onChange: (coordinates: Coordinates) => void;
 }) {
   const markerRef = useRef<LeafletMarker | null>(null);
+  const [basemap, setBasemap] = useState<BasemapKey>(DEFAULT_BASEMAP);
+  const selectedBasemap = BASEMAPS[basemap];
   const markerIcon = useMemo(
     () =>
       divIcon({
         className: "",
-        html: '<span class="signal-marker" style="background:#10b981"></span>',
-        iconAnchor: [12, 12],
-        iconSize: [24, 24],
+        html: '<span class="signal-marker signal-marker--picker" style="--marker-color:#10b981"><span class="signal-marker-dot"></span></span>',
+        iconAnchor: [15, 15],
+        iconSize: [30, 30],
       }),
     [],
   );
@@ -61,14 +73,22 @@ export default function LeafletMapPicker({
       </div>
       <MapContainer
         center={[value.latitude, value.longitude]}
-        zoom={15}
+        zoom={GIS_CONFIG.pickerZoom}
+        minZoom={GIS_CONFIG.minZoom}
+        maxBounds={GIS_CONFIG.maxBounds}
+        maxBoundsViscosity={GIS_CONFIG.maxBoundsViscosity}
+        zoomControl={false}
         scrollWheelZoom
-        className="h-[420px] w-full"
+        className="h-[460px] w-full"
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={basemap}
+          attribution={selectedBasemap.attribution}
+          maxZoom={selectedBasemap.maxZoom}
+          url={selectedBasemap.url}
         />
+        <ZoomControl position="bottomright" />
+        <ScaleControl imperial={false} position="bottomleft" />
         <ClickHandler onChange={onChange} />
         <ChangeView coordinates={value} />
         <Marker
@@ -85,6 +105,14 @@ export default function LeafletMapPicker({
           position={[value.latitude, value.longitude]}
           ref={markerRef}
         />
+        <div className="pointer-events-none absolute left-3 top-3 z-[500] grid gap-2">
+          <BasemapControl value={basemap} onChange={setBasemap} />
+          <CoordinatePanel
+            latitude={value.latitude}
+            longitude={value.longitude}
+            label="Titik Dipilih"
+          />
+        </div>
       </MapContainer>
     </div>
   );

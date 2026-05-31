@@ -11,6 +11,7 @@ import { getRoleHome } from "@/lib/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured, SITE_URL } from "@/lib/supabase/env";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
+import type { UserRole } from "@/types/database";
 
 async function ensureProfile(userId: string, fullName?: string | null) {
   const supabase = await createServerSupabaseClient();
@@ -84,6 +85,81 @@ export async function loginAction(
   redirect(getRoleHome(profile?.role));
 }
 
+async function loginWithRequiredRole(
+  formData: FormData,
+  requiredRole: Extract<UserRole, "admin" | "officer">,
+): Promise<ActionState> {
+  const parsed = loginSchema.safeParse(formDataToObject(formData));
+
+  if (!isSupabaseConfigured) {
+    return {
+      status: "error",
+      message:
+        "Supabase belum dikonfigurasi. Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+    };
+  }
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "Periksa kembali data masuk.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+
+  if (error) {
+    return {
+      status: "error",
+      message: "Email atau password tidak cocok.",
+    };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const profile = user
+    ? await ensureProfile(
+        user.id,
+        typeof user.user_metadata?.full_name === "string"
+          ? user.user_metadata.full_name
+          : user.email?.split("@")[0],
+      )
+    : null;
+
+  if (profile?.role !== requiredRole) {
+    await supabase.auth.signOut();
+
+    return {
+      status: "error",
+      message:
+        requiredRole === "admin"
+          ? "Akun ini bukan admin. Gunakan akun admin yang sudah diberi role."
+          : "Akun ini bukan petugas. Gunakan akun officer yang sudah diberi role.",
+    };
+  }
+
+  revalidatePath("/", "layout");
+  redirect(getRoleHome(profile.role));
+}
+
+export async function adminLoginAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  return loginWithRequiredRole(formData, "admin");
+}
+
+export async function officerLoginAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  return loginWithRequiredRole(formData, "officer");
+}
+
 export async function registerAction(
   _prevState: ActionState,
   formData: FormData,
@@ -114,7 +190,7 @@ export async function registerAction(
       data: {
         full_name: parsed.data.full_name,
       },
-      emailRedirectTo: `${SITE_URL}/dashboard`,
+      emailRedirectTo: `${SITE_URL}/auth/callback?next=/dashboard`,
     },
   });
 

@@ -1,11 +1,55 @@
 "use client";
 
-import { MapContainer, TileLayer } from "react-leaflet";
+import { latLngBounds } from "leaflet";
+import { useEffect, useState } from "react";
+import {
+  MapContainer,
+  ScaleControl,
+  TileLayer,
+  useMap,
+  useMapEvents,
+  ZoomControl,
+} from "react-leaflet";
 
+import { BasemapControl, CoordinatePanel, StatusLegend } from "@/components/map/map-controls";
 import { ReportMarker } from "@/components/map/report-marker";
-import { DEFAULT_MAP_CENTER } from "@/lib/constants";
+import { BASEMAPS, DEFAULT_BASEMAP, GIS_CONFIG, type BasemapKey } from "@/lib/gis";
 import { cn } from "@/lib/utils";
 import type { ReportWithProfile } from "@/types/database";
+
+function FitReportBounds({ reports }: { reports: ReportWithProfile[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (reports.length === 0) return;
+
+    if (reports.length === 1) {
+      map.setView([reports[0].latitude, reports[0].longitude], 15);
+      return;
+    }
+
+    const bounds = latLngBounds(
+      reports.map((report) => [report.latitude, report.longitude]),
+    );
+    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 16 });
+  }, [map, reports]);
+
+  return null;
+}
+
+function CursorCoordinate({
+  onMove,
+}: {
+  onMove: (coordinates: [number, number]) => void;
+}) {
+  useMapEvents({
+    mousemove(event) {
+      onMove([event.latlng.lat, event.latlng.lng]);
+    },
+  });
+
+  return null;
+}
 
 export default function LeafletReportMap({
   reports,
@@ -16,22 +60,35 @@ export default function LeafletReportMap({
   detailBasePath: "/dashboard/reports" | "/admin/reports";
   heightClassName?: string;
 }) {
+  const [basemap, setBasemap] = useState<BasemapKey>(DEFAULT_BASEMAP);
+  const [cursor, setCursor] = useState<[number, number]>(GIS_CONFIG.center);
+  const selectedBasemap = BASEMAPS[basemap];
   const center = reports[0]
     ? [reports[0].latitude, reports[0].longitude]
-    : [DEFAULT_MAP_CENTER.latitude, DEFAULT_MAP_CENTER.longitude];
+    : GIS_CONFIG.center;
 
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <MapContainer
         center={center as [number, number]}
-        zoom={13}
+        zoom={GIS_CONFIG.defaultZoom}
+        minZoom={GIS_CONFIG.minZoom}
+        maxBounds={GIS_CONFIG.maxBounds}
+        maxBoundsViscosity={GIS_CONFIG.maxBoundsViscosity}
+        zoomControl={false}
         scrollWheelZoom
         className={cn("h-[560px] w-full", heightClassName)}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={basemap}
+          attribution={selectedBasemap.attribution}
+          maxZoom={selectedBasemap.maxZoom}
+          url={selectedBasemap.url}
         />
+        <ZoomControl position="bottomright" />
+        <ScaleControl imperial={false} position="bottomleft" />
+        <FitReportBounds reports={reports} />
+        <CursorCoordinate onMove={setCursor} />
         {reports.map((report) => (
           <ReportMarker
             key={report.id}
@@ -39,6 +96,17 @@ export default function LeafletReportMap({
             detailBasePath={detailBasePath}
           />
         ))}
+        <div className="pointer-events-none absolute left-3 top-3 z-[500] grid gap-2">
+          <BasemapControl value={basemap} onChange={setBasemap} />
+          <StatusLegend />
+        </div>
+        <div className="pointer-events-none absolute bottom-8 right-3 z-[500]">
+          <CoordinatePanel
+            latitude={cursor[0]}
+            longitude={cursor[1]}
+            label="Cursor"
+          />
+        </div>
       </MapContainer>
     </div>
   );
